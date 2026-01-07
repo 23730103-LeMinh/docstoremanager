@@ -1,0 +1,19 @@
+/* Ensure items have a fixed width and are aligned to flex-start */
+.docstores-container .row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* Align items to the start of the row */
+  align-items: center; /* Center items vertically within their container */
+}
+
+.docstores-container .row > div.storage {
+  width: 320px; /* Fixed width */
+  height: 150px; /* Fixed height */
+  box-sizing: border-box;
+  text-align: center;
+  margin-bottom: 10px; /* Add spacing between rows */
+  margin-right: 10px; /* Add spacing between items */
+  border: 1px solid #ccc; /* Optional: Add a border for visibility */
+  background-color: #cccc; /* Optional: Add a background color for visibility */
+}
+

@@ -1,0 +1,9 @@
+.active-link {
+    font-weight: bold;
+    color: #3498db;
+    text-decoration: underline;
+    text-decoration-color: #3498db;
+    text-decoration-thickness: 2px;
+    text-decoration-style: solid; /* solid | double | wavy | dotted | dashed */
+    text-underline-offset: 3px;
+}

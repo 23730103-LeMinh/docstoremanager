@@ -1,13 +1,24 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import "./statics/styles.js";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "gridjs/dist/theme/mermaid.css"; // Import a Grid.js theme
+
+
+import { DocStoreProvider } from "./context/DocStoreContext.js";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <App />
+    <DocStoreProvider>
+      <App />
+    </DocStoreProvider>
   </React.StrictMode>
 );
 
