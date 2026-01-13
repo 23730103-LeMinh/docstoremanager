@@ -51,7 +51,7 @@ const Menu = () => {
 
       </div>
 
-      <div className="nav-item w-auto ms-auto">
+      {/* <div className="nav-item w-auto ms-auto">
         <Link className="nav-link dropdown-toggle"
             to="#"
             role="button"
@@ -72,7 +72,7 @@ const Menu = () => {
               </Link>
             </li>
           </ul>
-      </div>
+      </div> */}
     </nav>
   );
 };

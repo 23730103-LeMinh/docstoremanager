@@ -209,8 +209,17 @@ def document_list_by_shelf(request, shelf_id):
 @api_view(['POST'])
 def create_document(request):
     new_document_id = create_custom_id(Document, 'DC')
-    request.data['id'] = new_document_id
-    serializer = DocumentSerializer(data=request.data)
+    storageId = request.data['storage']
+    shelfId = request.data['shelf']
+    newDocument = {
+        'id': new_document_id,
+        'title': request.data['title'],
+        'document_type': request.data['document_type'],
+        'shelf': shelfId,
+        'storage': storageId,
+        'date_added': timezone.now(),
+    }
+    serializer = DocumentSerializer(data=newDocument)
     if serializer.is_valid():
         serializer.save(id=new_document_id)
         return Response(serializer.data, status=201)
@@ -223,7 +232,7 @@ def document_detail(request, pk):
     return Response(serializer.data)
 
 @api_view(['POST'])
-def update_document(request, pk):
+def update_document(request):
     document = Document.objects.get(id=request.data['id'])
     serializer = DocumentSerializer(instance=document, data=request.data)
     if serializer.is_valid():

@@ -8,6 +8,7 @@ const DocumentList = () => {
   const {
     setActiveList,
     selectedShelfId,
+    selectedStorageId,
     documentListSection,
     setDocumentListSection,
   } = useContext(DocStoreContext);
@@ -15,6 +16,7 @@ const DocumentList = () => {
   const [showAddNewModal, setShowAddNewModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedDeleteId, setSelectedDeleteId] = useState(null);
   const [formData, setFormData] = useState({
     id: null,
     title: "",
@@ -49,18 +51,16 @@ const DocumentList = () => {
   ];
 
   const handleClickDelete = (id) => {
+    setSelectedDeleteId(id);
     setShowDeleteModal(true);
   };
 
-  const handleDeleteConfirm = async (id) => {
+  const handleDeleteConfirm = async () => {
     try {
-      await apiRequest("DELETE", `/document-delete/${id}/`);
+      await apiRequest("DELETE", `/document-delete/${selectedDeleteId}/`);
       // Refresh document list after deletion
-      const data = await apiRequest(
-        "GET",
-        `/documents-by-shelf/${selectedShelfId}/`
-      );
-      setDocumentListSection(data.documents);
+      fetchDocuments();
+      setShowDeleteModal(false);
     } catch (error) {
       console.error("Error deleting document:", error);
     }
@@ -83,14 +83,50 @@ const DocumentList = () => {
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     try {
-      await apiRequest("PUT", `/document-update/`, formData);
+      let data = {
+        id: formData.id,
+        title: formData.title,
+        document_type: formData.document_type,
+        storage: selectedStorageId,
+        shelf: selectedShelfId,
+      }
+      await apiRequest("POST", `/document-update/`, data);
       setShowUpdateModal(false);
+      setFormData({
+        id: null,
+        title: "",
+        document_type: "",
+        storage: "",
+        shelf: "",
+      });
       // Refresh document list after update
       await fetchDocuments();
     } catch (error) {
       console.error("Error updating document:", error);
     }
   };
+
+  const handleClickCloseUpdateModal = () => {
+    setShowUpdateModal(false);
+    setFormData({
+      id: null,
+      title: "",
+      document_type: "",
+      storage: "",
+      shelf: "",
+    });
+  };
+
+  const handleCloseModal = (setCloseModalState) => {
+    setCloseModalState(false);
+    setFormData({
+      id: null,
+      title: "",
+      document_type: "",
+      storage: "",
+      shelf: "",
+    });
+  }
 
   const fetchDocuments = async () => {
     try {
@@ -129,7 +165,9 @@ const DocumentList = () => {
       const newDocumentData = {
         title: formData.title,
         document_type: formData.document_type,
-        shelf_id: selectedShelfId,
+        shelf: selectedShelfId,
+        storage: selectedStorageId,
+
       };
       await apiRequest("POST", `/document-create/`, newDocumentData);
       setShowAddNewModal(false);
@@ -254,7 +292,7 @@ const DocumentList = () => {
                 <button
                   type="button"
                   className="btn btn-danger"
-                  onClick={() => handleDeleteConfirm(formData.id)}
+                  onClick={() => handleDeleteConfirm()}
                 >
                   Delete
                 </button>
@@ -273,7 +311,7 @@ const DocumentList = () => {
                 <button
                   type="button"
                   className="btn-close"
-                  onClick={() => setShowUpdateModal(false)}
+                  onClick={handleClickCloseUpdateModal}
                 ></button>
               </div>
               <form onSubmit={handleUpdateSubmit}>
@@ -357,7 +395,7 @@ const DocumentList = () => {
                   <button
                     type="button"
                     className="btn btn-secondary"
-                    onClick={() => setShowUpdateModal(false)}
+                    onClick={handleClickCloseUpdateModal}
                   >
                     Cancel
                   </button>

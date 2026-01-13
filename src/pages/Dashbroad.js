@@ -66,7 +66,7 @@ const Dashboard = () => {
     { name: "Document Title", id: "title" },
     { name: "Storage", id: "storage" },
     { name: "Shelf", id: "shelf" },
-    { name: "Status", id: "status" },
+    { name: "Document Type", id: "document_type" },
     { name: "Date Added", id: "date_added" },
   ];
   const userColumns = [
@@ -82,7 +82,7 @@ const Dashboard = () => {
   return (
     <div className="container-fluid">
       <div className="row">
-        <div className="col-9 border-end">
+        <div className="col-12 border-end">
           {" "}
           {/* Left column: 75% */}
           <h3>DASHBOARD</h3>
@@ -202,14 +202,14 @@ const Dashboard = () => {
           )}
         </div>
         <div className="col-3">
-          <h3>Logging</h3>
+          {/* <h3>Logging</h3>
           <ul className="list-group list-group-flush">
             {logList.map((log, index) => (
               <li key={index} className="list-group-item">
                 [{new Date(log.timestamp).toLocaleString()}] {log.user} {log.action} {log.object_type}
               </li>
             ))}
-          </ul>
+          </ul> */}
         </div>
       </div>
     </div>
