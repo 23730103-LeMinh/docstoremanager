@@ -1,128 +1,83 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { DocStoreContext } from "../context/DocStoreContext.js";
 import { Grid } from "gridjs-react";
+import { apiRequest } from "../utils/api.js";
 
 const Dashboard = () => {
-  const { dashboardActiveTab, setDashboardActiveTab } =
+  const {docstoreInfo, setDocstoreInfo, dashboardActiveTab, setDashboardActiveTab, userList, setUserList,
+     logList, setLogList, storageList, setStorageList,
+      shelfList, setShelfList, documentList, setDocumentList } =
     useContext(DocStoreContext);
 
+  // Fetch data from backend API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const infos = await apiRequest("GET","/docstore-stats/");
+        setDocstoreInfo(infos);
+
+        const storages = await apiRequest("GET","/storages/");
+        setStorageList(
+          storages
+        );
+        const shelves = await apiRequest("GET","/shelves/");
+        setShelfList(
+          shelves
+        );
+        const documents = await apiRequest("GET","/documents/");
+        setDocumentList(
+          documents
+        );
+        const users = await apiRequest("GET","/users/");
+        setUserList(
+          users
+        );
+        const logs = await apiRequest("GET","/logentries/");
+        console.log("Fetched logs:", logs);
+
+        setLogList(
+          logs
+          // logs.data.map((log) => 
+          //   `User: ${log.user}, Action: ${log.action}, Object: ${log.object_type}, Date: ${new Date(log.date_added).toLocaleDateString()}`
+          // )
+        );
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [setStorageList, setShelfList, setDocumentList, setUserList, setLogList]);
+
   const storageColumns = [
-    "ID",
-    "Storage",
-    "Type of Document",
-    "Location",
-    "Date Added",
+    { name: "Storage ID", id: "id" },
+    { name: "Storage", id: "name" },
+    { name: "Location", id: "location" },
+    { name: "Date Added", id: "date_added" }
   ];
   const shelfColumns = [
-    "Shelf ID",
-    "Shelf",
-    "Type of document",
-    "Storage",
-    "Date Added",
+    { name: "Shelf ID", id: "id" },
+    { name: "Shelf", id: "name" },
+    { name: "Storage", id: "storage" },
+    { name: "Date Added", id: "date_added" },
   ];
   const documentColumns = [
-    "Document ID",
-    "Document",
-    "Type of document",
-    "Storage",
-    "Shelf",
-    "Status",
-    "Date Added",
+    { name: "Document ID", id: "id" },
+    { name: "Document Title", id: "title" },
+    { name: "Storage", id: "storage" },
+    { name: "Shelf", id: "shelf" },
+    { name: "Status", id: "status" },
+    { name: "Date Added", id: "date_added" },
   ];
-  const userColumns = ["User ID", "User's name", "Role", "Date Added"];
-  const storageList = [
-    ["1", "Main Storage", "Legal", "New York", "2025-01-15"],
-    ["2", "Backup Storage", "Accounting", "Los Angeles", "2025-02-20"],
-    ["3", "Cloud Storage", "Technical", "Online", "2025-03-10"],
-    ["4", "Archive Storage", "Physical", "Chicago", "2025-04-05"],
-    ["5", "Contracts Vault", "Contract", "Houston", "2025-05-12"],
+  const userColumns = [
+    { name: "User ID", id: "id" },
+    { name: "User's name", id: "full_name" },
+    { name: "Role", id: "role" },
+    { name: "Date Added", id: "date_added" },
   ];
+  
 
-  const shelfList = [
-    ["1", "Shelf A", "Legal", "Main Storage", "2025-01-15"],
-    ["2", "Shelf B", "Accounting", "Backup Storage", "2025-02-20"],
-    ["3", "Shelf C", "Technical", "Cloud Storage", "2025-03-10"],
-    ["4", "Shelf D", "Physical", "Archive Storage", "2025-04-05"],
-    ["5", "Shelf E", "Contract", "Contracts Vault", "2025-05-12"],
-  ]; // Sample shelf data
-  const documentList = [
-    [
-      "1",
-      "Contract Agreement",
-      "Contract",
-      "Main Storage",
-      "Shelf A",
-      "Active",
-      "2025-01-15",
-    ],
-    [
-      "2",
-      "Financial Report Q1 2025",
-      "Invoice",
-      "Backup Storage",
-      "Shelf B",
-      "Active",
-      "2025-02-20",
-    ],
-    [
-      "3",
-      "Technical Specification Doc",
-      "Technical",
-      "Cloud Storage",
-      "Shelf C",
-      "Active",
-      "2025-03-10",
-    ],
-    [
-      "4",
-      "Employee Handbook",
-      "HR",
-      "Archive Storage",
-      "Shelf D",
-      "Active",
-      "2025-04-05",
-    ],
-    [
-      "5",
-      "Company Policy Update",
-      "Policy",
-      "Contracts Vault",
-      "Shelf E",
-      "Active",
-      "2025-05-12",
-    ],
-  ]; // Sample document data
-
-  const userList = [
-    ["1", "Alice Johnson", "Admin", "2025-01-15"],
-    ["2", "Bob Smith", "Editor", "2025-02-20"],
-    ["3", "Charlie Brown", "Viewer", "2025-03-10"],
-    ["4", "Diana Prince", "Editor", "2025-04-05"],
-    ["5", "Ethan Hunt", "Admin", "2025-05-12"],
-  ]; // Sample user data
-
-  const logs = [
-    "[2025-11-25 12:00:05] User John uploaded 'file1.pdf'",
-    "[2025-11-25 12:05:10] User Jane deleted 'file2.docx'",
-    "[2025-11-25 12:10:15] Admin updated permissions for 'file3.xlsx'",
-    "[2025-11-25 12:15:20] User John downloaded 'file4.txt'",
-    "[2025-11-25 12:20:25] User John uploaded 'file5.pdf'",
-    "[2025-11-25 12:25:30] User Jane deleted 'file6.docx'",
-    "[2025-11-25 12:30:35] Admin updated permissions for 'file7.xlsx'",
-    "[2025-11-25 12:35:40] User John downloaded 'file8.txt'",
-    "[2025-11-25 12:40:45] User John uploaded 'file9.pdf'",
-    "[2025-11-25 12:45:50] User Jane deleted 'file10.docx'",
-    "[2025-11-25 12:50:55] Admin updated permissions for 'file11.xlsx'",
-    "[2025-11-25 12:55:00] User John downloaded 'file12.txt'",
-    "[2025-11-25 13:00:05] User John uploaded 'file13.pdf'",
-    "[2025-11-25 13:05:10] User Jane deleted 'file14.docx'",
-    "[2025-11-25 13:10:15] Admin updated permissions for 'file15.xlsx'",
-    "[2025-11-25 13:15:20] User John downloaded 'file16.txt'",
-    "[2025-11-25 13:20:25] User Alice modified 'file17.pdf'",
-    "[2025-11-25 13:25:30] User Bob shared 'file18.docx'",
-    "[2025-11-25 13:30:35] Admin archived 'file19.xlsx'",
-    "[2025-11-25 13:35:40] User Charlie restored 'file20.txt'",
-  ];
+  
 
   return (
     <div className="container-fluid">
@@ -143,7 +98,7 @@ const Dashboard = () => {
                 onClick={() => setDashboardActiveTab("storages")}
               >
                 <h4>Storages</h4>
-                <small>Number of storages: 10</small>
+                <small>Number of storages: {docstoreInfo ? docstoreInfo.numOfStorages : 0}</small>
               </div>
             </div>
             <div className="col">
@@ -157,7 +112,7 @@ const Dashboard = () => {
                 onClick={() => setDashboardActiveTab("shelves")}
               >
                 <h4>Shelves</h4>
-                <small>Number of shelves: 50</small>
+                <small>Number of shelves: {docstoreInfo ? docstoreInfo.numOfShelves : 0}</small>
               </div>
             </div>
             <div className="col">
@@ -171,7 +126,7 @@ const Dashboard = () => {
                 onClick={() => setDashboardActiveTab("documents")}
               >
                 <h4>Documents</h4>
-                <small>Number of documents: 200</small>
+                <small>Number of documents: {docstoreInfo ? docstoreInfo.numOfDocuments : 0}</small>
               </div>
             </div>
             <div className="col">
@@ -185,7 +140,7 @@ const Dashboard = () => {
                 onClick={() => setDashboardActiveTab("users")}
               >
                 <h4>Users</h4>
-                <small>Number of users: 10</small>
+                <small>Number of users: {docstoreInfo ? docstoreInfo.numOfUsers : 0}</small>
               </div>
             </div>
           </div>
@@ -249,9 +204,9 @@ const Dashboard = () => {
         <div className="col-3">
           <h3>Logging</h3>
           <ul className="list-group list-group-flush">
-            {logs.map((log, index) => (
+            {logList.map((log, index) => (
               <li key={index} className="list-group-item">
-                {log}
+                [{new Date(log.timestamp).toLocaleString()}] {log.user} {log.action} {log.object_type}
               </li>
             ))}
           </ul>

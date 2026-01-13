@@ -16,6 +16,7 @@ urlpatterns = [
     path("storage-delete/<str:pk>/", views.delete_storage),
 
     path("shelves/", views.shelf_list),
+    path("shelves-by-storage/<str:storage_id>/", views.shelf_list_by_storage),
     path("shelf-create/", views.create_shelf),
     path("shelf/<str:pk>/", views.shelf_detail),
     path("shelf-update/", views.update_shelf),
@@ -26,10 +27,13 @@ urlpatterns = [
     path("document/<str:pk>/", views.document_detail),
     path("document-update/", views.update_document),
     path("document-delete/<str:pk>/", views.delete_document),
+    path("documents-by-shelf/<str:shelf_id>/", views.document_list_by_shelf),
 
     path("logentries/", views.logentry_list),
     path("logentry-create/", views.create_logentry),
     path("logentry/<str:pk>/", views.logentry_detail),
     path("logentry-update/", views.update_logentry),
     path("logentry-delete/<str:pk>/", views.delete_logentry),
+    
+    path("docstore-stats/", views.get_docstore_info),
 ]

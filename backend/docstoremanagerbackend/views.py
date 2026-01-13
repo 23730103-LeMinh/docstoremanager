@@ -136,6 +136,19 @@ def shelf_list(request):
     serializer = ShelfSerializer(shelves, many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def shelf_list_by_storage(request, storage_id):
+    storage = Storage.objects.get(id=storage_id)
+    shelves = Shelf.objects.filter(storage=storage_id)
+    serializer = ShelfSerializer(shelves, many=True)
+    result = {
+        "shelves": serializer.data,
+        "storage_id": storage.id,
+        "location": storage.location
+        }
+    return Response(result)
+
+
 @api_view(['POST'])
 def create_shelf(request):
     new_shelf_id = create_custom_id(Shelf, 'SH')
@@ -174,6 +187,18 @@ def document_list(request):
     documents = Document.objects.all()
     serializer = DocumentSerializer(documents, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def document_list_by_shelf(request, shelf_id):
+    shelf = Shelf.objects.get(id=shelf_id)
+    documents = Document.objects.filter(shelf=shelf_id)
+    serializer = DocumentSerializer(documents, many=True)
+    result = {
+        "documents": serializer.data,
+        "shelf_id": shelf.id,
+        "storage_id": shelf.storage.id
+    }
+    return Response(result)
 
 @api_view(['POST'])
 def create_document(request):
@@ -245,6 +270,21 @@ def delete_logentry(request, pk):
     logentry = LogEntry.objects.get(id=pk)
     logentry.delete()
     return Response("LogEntry deleted successfully!")
+
+# ============================= Utility Functions =============================
+@api_view(['GET'])
+def get_docstore_info(request):
+    # get number of storages, shelves, documents, users
+    num_storages = Storage.objects.count()
+    num_shelves = Shelf.objects.count()
+    num_documents = Document.objects.count()
+    num_users = User.objects.count()
+    return Response({
+        "numOfStorages": num_storages,
+        "numOfShelves": num_shelves,
+        "numOfDocuments": num_documents,
+        "numOfUsers": num_users
+    })
 
 
 # Utility function to create custom IDs
