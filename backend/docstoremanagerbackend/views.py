@@ -85,7 +85,7 @@ def delete_user(request, pk):
 
 @api_view(['GET'])
 def storage_list(request):
-    storages = Storage.objects.all()
+    storages = Storage.objects.all().order_by('date_added').reverse()
     serializer = StorageSerializer(storages, many=True)
     return Response(serializer.data)
 
@@ -114,7 +114,7 @@ def storage_detail(request, pk):
     return Response(serializer.data)
 
 @api_view(['POST'])
-def update_storage(request, pk):
+def update_storage(request):
     storage = Storage.objects.get(id=request.data['id'])
     serializer = StorageSerializer(instance=storage, data=request.data)
     if serializer.is_valid():
@@ -139,7 +139,7 @@ def shelf_list(request):
 @api_view(['GET'])
 def shelf_list_by_storage(request, storage_id):
     storage = Storage.objects.get(id=storage_id)
-    shelves = Shelf.objects.filter(storage=storage_id)
+    shelves = Shelf.objects.filter(storage=storage_id).order_by('date_added').reverse()
     serializer = ShelfSerializer(shelves, many=True)
     result = {
         "shelves": serializer.data,
@@ -152,8 +152,14 @@ def shelf_list_by_storage(request, storage_id):
 @api_view(['POST'])
 def create_shelf(request):
     new_shelf_id = create_custom_id(Shelf, 'SH')
-    request.data['id'] = new_shelf_id
-    serializer = ShelfSerializer(data=request.data)
+    storage = Storage.objects.get(id=request.data['storage'])
+    newShelf = {
+        'id': new_shelf_id,
+        'name': request.data['name'],
+        'storage': storage.id,
+        'date_added': timezone.now(),
+    }
+    serializer = ShelfSerializer(data=newShelf)
     if serializer.is_valid():
         serializer.save(id=new_shelf_id)
         return Response(serializer.data, status=201)
@@ -166,7 +172,7 @@ def shelf_detail(request, pk):
     return Response(serializer.data)
 
 @api_view(['POST'])
-def update_shelf(request, pk):
+def update_shelf(request):
     shelf = Shelf.objects.get(id=request.data['id'])
     serializer = ShelfSerializer(instance=shelf, data=request.data)
     if serializer.is_valid():

@@ -23,6 +23,7 @@ const ShelfList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showAddNewModal, setShowAddNewModal] = useState(false);
+  const [selectedDeleteId, setSelectedDeleteId] = useState(null);
 
   const shelfColumns = [
     { name: "Shelf ID", id: "id" },
@@ -44,6 +45,7 @@ const ShelfList = () => {
 
   const handleClickDetele = (id) => {
     console.log("Delete shelf with ID:", id);
+    setSelectedDeleteId(id);
     // Implement delete logic here
     setShowDeleteModal(true);
   };
@@ -52,13 +54,12 @@ const ShelfList = () => {
     setShowDeleteModal(false);
   };
 
-  const handleConfirmDelete = async (id) => {
+  const handleConfirmDelete = async () => {
     // Call the delete function here
     try {
-      await apiRequest("DELETE", `/shelves/${id}`);
+      await apiRequest("DELETE", `/shelf-delete/${selectedDeleteId}/`);
       // Refresh the list
-      const shelves = await apiRequest("GET", `/shelves-by-storage/${id}/`);
-      setShelfListSection(shelves);
+      await fetchShelfSections();
     } catch (error) {
       console.error("Error deleting shelf:", error);
     }
@@ -84,13 +85,14 @@ const ShelfList = () => {
   const handleUpdateSubmit = async (event) => {
     event.preventDefault();
     try {
-      await apiRequest("PUT", `/shelf-update/`, formData);
+      let data = {
+        id: formData.id,
+        name: formData.name,
+        storage: formData.storage,
+      }
+      await apiRequest("POST", `/shelf-update/`, data);
       // Refresh the list
-      const shelves = await apiRequest(
-        "GET",
-        `/shelves-by-storage/${selectedStorageId}/`
-      );
-      setShelfListSection(shelves);
+      await fetchShelfSections();
     } catch (error) {
       console.error("Error updating shelf:", error);
     }
@@ -109,13 +111,14 @@ const ShelfList = () => {
   const handleAddNewSubmit = async (event) => {
     event.preventDefault();
     try {
-      await apiRequest("POST", `/shelf-create/`, formData);
+      console.log("Submitting new shelf:", selectedStorageId, formData.name);
+      let data = {
+        name: formData.name,
+        storage: selectedStorageId,
+      }
+      await apiRequest("POST", `/shelf-create/`, data);
       // Refresh the list
-      const shelves = await apiRequest(
-        "GET",
-        `/shelves-by-storage/${selectedStorageId}/`
-      );
-      setShelfListSection(shelves);
+      await fetchShelfSections();
     } catch (error) {
       console.error("Error adding new shelf:", error);
     }
@@ -124,6 +127,23 @@ const ShelfList = () => {
       id: null,
       name: "",
     });
+  };
+
+  const fetchShelfSections = async () => {
+    try {
+      const data = await apiRequest(
+        "GET",
+        `/shelves-by-storage/${selectedStorageId}/`
+      );
+      let location = data.location;
+      let displayData = data.shelves.map((shelf) => ({
+        ...shelf,
+        location: location || "N/A", // Handle null location
+      }));
+      setShelfListSection(displayData);
+    } catch (error) {
+      console.error("Error fetching shelf sections:", error);
+    }
   };
 
   const handleCloseAddNew = () => {

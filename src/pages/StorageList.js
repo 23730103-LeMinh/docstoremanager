@@ -10,6 +10,7 @@ const StorageList = () => {
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [selectedDeleteId, setSelectedDeleteId] = useState(null);
   const [formData, setFormData] = useState({
     id: null,
     name: "",
@@ -37,6 +38,7 @@ const StorageList = () => {
 
   const handleClickDelete = (id) => {
     console.log("Clicked delete for storage ID:", id);
+    setSelectedDeleteId(id);
     setShowDeleteModal(true);
   };
 
@@ -44,10 +46,10 @@ const StorageList = () => {
     setShowDeleteModal(false);
   };
 
-  const handleConfirmDelete = async (id) => {
+  const handleConfirmDelete = async () => {
     // Call the delete function here
     try {
-      await apiRequest("DELETE", `/storages/${id}`);
+      await apiRequest("DELETE", `/storage-delete/${selectedDeleteId}/`);
       // Refresh the list
       const storages = await apiRequest("GET", "/storages/");
       setStorageListSection(storages);
@@ -84,10 +86,16 @@ const StorageList = () => {
     try {
       // Assuming we have the storage ID in formData or elsewhere
       const id = storageListSection.find(
-        (item) => item.name === formData.name
+        (item) => item.id === formData.id
       )?.id;
+      console.log("Submitting update for storage ID:", id);
       if (id) {
-        await apiRequest("PUT", `/storages/${id}`, formData);
+        let data = {
+          id: formData.id,
+          name: formData.name,
+          location: formData.location,
+        }
+        await apiRequest("POST", `/storage-update/`, data);
         // Refresh the list
         const storages = await apiRequest("GET", "/storages/");
         setStorageListSection(storages);
@@ -128,7 +136,7 @@ const StorageList = () => {
     e.preventDefault();
     // Handle add new storage logic here
     try {
-      await apiRequest("POST", `/storages/`, formData);
+      await apiRequest("POST", `/storage-create/`, formData);
       // Refresh the list
       const storages = await apiRequest("GET", "/storages/");
       setStorageListSection(storages);
